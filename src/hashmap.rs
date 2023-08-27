@@ -1,10 +1,9 @@
 /*
 TODO:
-    -Add hash algorithm
     -Make CustomHashMap generic and not just implemented for i32 keys and values
 */
 mod siphash;
-// use rand::Rng;
+use rand::Rng;
 use siphash::SipHasher;
 
 #[derive(Clone)]
@@ -38,10 +37,9 @@ impl Bucket {
 
 impl CustomHashMap {
     pub fn new() -> CustomHashMap {
-        // let mut rng = rand::thread_rng();
+        let mut rng = rand::thread_rng();
         CustomHashMap {
-            // hash_key: rng.gen::<u128>(),
-            hash_key: 0x41424344454647486162636465666768 as u128,
+            hash_key: rng.gen::<u128>(),
             buckets: vec![Bucket::new(); 100],
         }
     }

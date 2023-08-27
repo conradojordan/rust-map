@@ -7,10 +7,15 @@
 mod siphash;
 
 use rand::Rng;
-use siphash::SipHasher;
 use std::cmp::PartialEq; // Keys must be of a comparable type
 
 const NUM_BUCKETS: usize = 100;
+
+// A type that will be used as a key to the hash map should implement
+// the MapKeyHasher
+pub trait MapKeyHasher {
+    fn hash(&self, hash_key: u128) -> u64;
+}
 
 #[derive(Clone)]
 struct Bucket<K, V> {
@@ -41,7 +46,7 @@ impl<K: PartialEq, V: Clone> Bucket<K, V> {
     }
 }
 
-impl<K: Clone + SipHasher + PartialEq, V: Clone> CJHashMap<K, V> {
+impl<K: Clone + MapKeyHasher + PartialEq, V: Clone> CJHashMap<K, V> {
     pub fn new() -> CJHashMap<K, V> {
         let mut rng = rand::thread_rng();
         CJHashMap {
@@ -51,12 +56,12 @@ impl<K: Clone + SipHasher + PartialEq, V: Clone> CJHashMap<K, V> {
     }
 
     pub fn add(&mut self, key: K, value: V) {
-        let idx = (key.sip_hash(self.hash_key) % self.buckets.len() as u64) as usize;
+        let idx = (key.hash(self.hash_key) % self.buckets.len() as u64) as usize;
         self.buckets[idx].add(key, value);
     }
 
     pub fn get(&self, key: K) -> Option<V> {
-        let idx = (key.sip_hash(self.hash_key) % self.buckets.len() as u64) as usize;
+        let idx = (key.hash(self.hash_key) % self.buckets.len() as u64) as usize;
         self.buckets[idx].get(key)
     }
 }

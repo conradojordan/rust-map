@@ -6,6 +6,7 @@
     Reference paper used for the implementation: https://eprint.iacr.org/2012/351.pdf.
     Public domain C Reference implementation can be found at https://github.com/veorq/SipHash
 */
+use crate::hashmap::MapKeyHasher;
 
 const COMPRESSION_ROUNDS: u8 = 2;
 const FINALIZATION_ROUNDS: u8 = 4;
@@ -72,14 +73,65 @@ fn sip_chunk(v: &mut [u64; 4], m: u64) {
     v[0] ^= m;
 }
 
-impl SipHasher for i32 {
-    fn u64_chunks(&self) -> Vec<u64> {
-        vec![(*self as u64).swap_bytes(), 0x800000000000000]
+// Implementation of the MapKeyHasher trait for Rust types
+impl MapKeyHasher for bool {
+    fn hash(&self, _hash_key: u128) -> u64 {
+        if *self {
+            0 as u64
+        } else {
+            1 as u64
+        }
     }
 }
 
-impl SipHasher for u32 {
+impl SipHasher for u128 {
     fn u64_chunks(&self) -> Vec<u64> {
-        vec![(*self as u64).swap_bytes(), 0x800000000000000]
+        vec![(*self >> 64) as u64, *self as u64, 0x1000000000000000]
     }
 }
+
+impl MapKeyHasher for u128 {
+    fn hash(&self, hash_key: u128) -> u64 {
+        self.sip_hash(hash_key)
+    }
+}
+
+impl SipHasher for i128 {
+    fn u64_chunks(&self) -> Vec<u64> {
+        vec![(*self >> 64) as u64, *self as u64, 0x1000000000000000]
+    }
+}
+
+impl MapKeyHasher for i128 {
+    fn hash(&self, hash_key: u128) -> u64 {
+        self.sip_hash(hash_key)
+    }
+}
+
+// Macro to implement MapKeyHasher using the SipHasher trait
+macro_rules! implement_sip {
+    ($elem:ty) => {
+        impl SipHasher for $elem {
+            fn u64_chunks(&self) -> Vec<u64> {
+                vec![(*self as u64).swap_bytes(), 0x800000000000000]
+            }
+        }
+
+        impl MapKeyHasher for $elem {
+            fn hash(&self, hash_key: u128) -> u64 {
+                self.sip_hash(hash_key)
+            }
+        }
+    };
+}
+
+implement_sip!(i8);
+implement_sip!(u8);
+implement_sip!(i16);
+implement_sip!(u16);
+implement_sip!(i32);
+implement_sip!(u32);
+implement_sip!(i64);
+implement_sip!(u64);
+implement_sip!(isize);
+implement_sip!(usize);

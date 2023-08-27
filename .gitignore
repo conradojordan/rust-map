@@ -2,3 +2,4 @@
 .vscode/
 
 siphash*.c
+a.out

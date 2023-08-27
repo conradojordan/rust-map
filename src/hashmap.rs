@@ -1,55 +1,53 @@
-/*
-TODO:
-    -Make CustomHashMap generic and not just implemented for i32 keys and values
-*/
 mod siphash;
+
 use rand::Rng;
 use siphash::SipHasher;
+use std::cmp::PartialEq; // Keys must be of a comparable type
 
 #[derive(Clone)]
-struct Bucket {
-    items: Vec<(i32, i32)>,
+struct Bucket<K, V> {
+    items: Vec<(K, V)>,
 }
 
-pub struct CustomHashMap {
+pub struct CustomHashMap<K, V> {
     hash_key: u128,
-    buckets: Vec<Bucket>,
+    buckets: Vec<Bucket<K, V>>,
 }
 
-impl Bucket {
-    fn new() -> Bucket {
+impl<K: PartialEq, V: Clone> Bucket<K, V> {
+    fn new() -> Bucket<K, V> {
         Bucket { items: Vec::new() }
     }
 
-    fn add(&mut self, key: i32, value: i32) {
+    fn add(&mut self, key: K, value: V) {
         self.items.push((key, value));
     }
 
-    fn get(&self, key: i32) -> Option<i32> {
+    fn get(&self, key: K) -> Option<V> {
         for item in self.items.iter() {
             if item.0 == key {
-                return Some(item.1);
+                return Some(item.1.clone());
             }
         }
         return None;
     }
 }
 
-impl CustomHashMap {
-    pub fn new() -> CustomHashMap {
+impl<K: Clone + SipHasher + PartialEq, V: Clone> CustomHashMap<K, V> {
+    pub fn new() -> CustomHashMap<K, V> {
         let mut rng = rand::thread_rng();
         CustomHashMap {
             hash_key: rng.gen::<u128>(),
-            buckets: vec![Bucket::new(); 100],
+            buckets: vec![Bucket::<K, V>::new(); 100],
         }
     }
 
-    pub fn add(&mut self, key: i32, value: i32) {
+    pub fn add(&mut self, key: K, value: V) {
         let idx = (key.sip_hash(self.hash_key) % self.buckets.len() as u64) as usize;
         self.buckets[idx].add(key, value);
     }
 
-    pub fn get(&self, key: i32) -> Option<i32> {
+    pub fn get(&self, key: K) -> Option<V> {
         let idx = (key.sip_hash(self.hash_key) % self.buckets.len() as u64) as usize;
         self.buckets[idx].get(key)
     }

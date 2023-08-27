@@ -1,13 +1,25 @@
+/*
+    Author: Conrado Jordan
+    Date: 2023
+    Implementation of the SipHash hashing algorithm (https://en.wikipedia.org/wiki/SipHash)
+    created by Jean-Philippe Aumasson and Daniel J. Bernstein.
+    Reference paper used for the implementation: https://eprint.iacr.org/2012/351.pdf.
+    Public domain C Reference implementation can be found at https://github.com/veorq/SipHash
+*/
+
 const COMPRESSION_ROUNDS: u8 = 2;
 const FINALIZATION_ROUNDS: u8 = 4;
 
 pub trait SipHasher {
+    // Divides instance of the implementingtype into chunks of 64 bits (a Vec<u64>).
+    // The instance of b bytes should be divided into w = [(b + 1)/8] > 0 64-bit little-endian words
+    // m0, . . . , mw−1 where mw−1 includes the last 0 through 7 bytes of m followed by null bytes and ending
+    // with a byte encoding the positive integer (b mod 256).
     fn u64_chunks(&self) -> Vec<u64>;
 
     fn sip_hash(&self, key: u128) -> u64 {
-        // To transform key to little_endian do:
-        // let le_key = key.swap_bytes();
-        // Not needed if using a random generated key (its random bytes anyway)
+        // To transform key to little_endian use key.swap_bytes();
+        // Not needed as a random generated key is being used (its random bytes anyway)
         let k: [u64; 2] = [(key >> 64) as u64, key as u64];
         let mut v: [u64; 4] = [
             0x736f6d6570736575 ^ k[0],
@@ -31,6 +43,7 @@ pub trait SipHasher {
 }
 
 fn sip_round(v: &mut [u64; 4]) {
+    // One round of the SipHash, called SipRound
     v[0] = v[0].wrapping_add(v[1]);
     v[1] = v[1].rotate_left(13);
     v[1] ^= v[0];
@@ -48,6 +61,8 @@ fn sip_round(v: &mut [u64; 4]) {
 }
 
 fn sip_chunk(v: &mut [u64; 4], m: u64) {
+    // Updates the states vector by applying `COMPRESSION_ROUNDS` SipRounds
+    // to the given 64 bits chunk (m)
     v[3] ^= m;
 
     for _ in 0..COMPRESSION_ROUNDS {

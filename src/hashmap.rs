@@ -1,8 +1,16 @@
+/*
+    Hashmap implemented as an array of `NUM_BUCKETS` Buckets. Each bucket consists of
+    a vector of (key, value) tuples. K and V represent the types of the key and the value
+    respectively.
+*/
+
 mod siphash;
 
 use rand::Rng;
 use siphash::SipHasher;
 use std::cmp::PartialEq; // Keys must be of a comparable type
+
+const NUM_BUCKETS: usize = 100;
 
 #[derive(Clone)]
 struct Bucket<K, V> {
@@ -38,7 +46,7 @@ impl<K: Clone + SipHasher + PartialEq, V: Clone> CJHashMap<K, V> {
         let mut rng = rand::thread_rng();
         CJHashMap {
             hash_key: rng.gen::<u128>(),
-            buckets: vec![Bucket::<K, V>::new(); 100],
+            buckets: vec![Bucket::<K, V>::new(); NUM_BUCKETS],
         }
     }
 

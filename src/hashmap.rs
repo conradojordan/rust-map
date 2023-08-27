@@ -9,7 +9,7 @@ struct Bucket<K, V> {
     items: Vec<(K, V)>,
 }
 
-pub struct CustomHashMap<K, V> {
+pub struct CJHashMap<K, V> {
     hash_key: u128,
     buckets: Vec<Bucket<K, V>>,
 }
@@ -33,10 +33,10 @@ impl<K: PartialEq, V: Clone> Bucket<K, V> {
     }
 }
 
-impl<K: Clone + SipHasher + PartialEq, V: Clone> CustomHashMap<K, V> {
-    pub fn new() -> CustomHashMap<K, V> {
+impl<K: Clone + SipHasher + PartialEq, V: Clone> CJHashMap<K, V> {
+    pub fn new() -> CJHashMap<K, V> {
         let mut rng = rand::thread_rng();
-        CustomHashMap {
+        CJHashMap {
             hash_key: rng.gen::<u128>(),
             buckets: vec![Bucket::<K, V>::new(); 100],
         }

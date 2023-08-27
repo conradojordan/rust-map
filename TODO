@@ -1,0 +1,4 @@
+1. Add hashing implementation for String, so that it can be used as a key for the hash map
+2. Make the number of buckets of the map grown dinamically
+3. Add "remove()" method that removes element from the map
+4. Add "items()" method that returns all the key, value tuples of the map

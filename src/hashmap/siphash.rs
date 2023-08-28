@@ -63,7 +63,7 @@ fn sip_round(v: &mut [u64; 4]) {
 
 fn sip_chunk(v: &mut [u64; 4], m: u64) {
     // Updates the states vector by applying `COMPRESSION_ROUNDS` SipRounds
-    // to the given 64 bits chunk (m)
+    // with the given 64 bits chunk (m)
     v[3] ^= m;
 
     for _ in 0..COMPRESSION_ROUNDS {

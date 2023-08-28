@@ -3,5 +3,4 @@
 - Make the number of buckets on the map grow dinamically
 - Add "remove()" method that removes element from the map
 - Add "items()" method that returns all the (key, value) tuples of the map
-- Change "hash_key" to "hash_seed"
 - Add number of buckets to map

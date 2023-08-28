@@ -14,8 +14,8 @@ fn main() {
     println!("Adding value '{value}' for key {key}");
     hashmap.set(key, value);
 
-    println!("Searching for value stored in key {key}");
     // Retrieving element
+    println!("Searching for value stored in key {key}");
     match hashmap.get(key) {
         None => println!("Element not found"),
         Some(result) => println!("Key {} contains value '{}'", key, result),

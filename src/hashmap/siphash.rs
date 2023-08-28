@@ -75,7 +75,7 @@ fn sip_chunk(v: &mut [u64; 4], m: u64) {
 
 // Implementation of the MapKeyHasher trait for Rust types
 impl MapKeyHasher for bool {
-    fn hash(&self, _hash_key: u128) -> u64 {
+    fn hash(&self, _hash_seed: u128) -> u64 {
         if *self {
             0 as u64
         } else {
@@ -91,8 +91,8 @@ impl SipHasher for u128 {
 }
 
 impl MapKeyHasher for u128 {
-    fn hash(&self, hash_key: u128) -> u64 {
-        self.sip_hash(hash_key)
+    fn hash(&self, hash_seed: u128) -> u64 {
+        self.sip_hash(hash_seed)
     }
 }
 
@@ -103,8 +103,8 @@ impl SipHasher for i128 {
 }
 
 impl MapKeyHasher for i128 {
-    fn hash(&self, hash_key: u128) -> u64 {
-        self.sip_hash(hash_key)
+    fn hash(&self, hash_seed: u128) -> u64 {
+        self.sip_hash(hash_seed)
     }
 }
 
@@ -118,8 +118,8 @@ macro_rules! implement_sip {
         }
 
         impl MapKeyHasher for $elem {
-            fn hash(&self, hash_key: u128) -> u64 {
-                self.sip_hash(hash_key)
+            fn hash(&self, hash_seed: u128) -> u64 {
+                self.sip_hash(hash_seed)
             }
         }
     };

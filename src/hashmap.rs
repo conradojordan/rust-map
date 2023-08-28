@@ -14,7 +14,7 @@ const NUM_BUCKETS: usize = 100;
 // A type that will be used as a key to the hash map should implement
 // the MapKeyHasher
 pub trait MapKeyHasher {
-    fn hash(&self, hash_key: u128) -> u64;
+    fn hash(&self, hash_seed: u128) -> u64;
 }
 
 #[derive(Clone)]
@@ -24,7 +24,7 @@ struct Bucket<K, V> {
 
 pub struct CJHashMap<K, V> {
     size: usize,
-    hash_key: u128,
+    hash_seed: u128,
     buckets: Vec<Bucket<K, V>>,
 }
 
@@ -52,13 +52,13 @@ impl<K: Clone + MapKeyHasher + PartialEq, V: Clone> CJHashMap<K, V> {
         let mut rng = rand::thread_rng();
         CJHashMap {
             size: 0,
-            hash_key: rng.gen::<u128>(),
+            hash_seed: rng.gen::<u128>(),
             buckets: vec![Bucket::<K, V>::new(); NUM_BUCKETS],
         }
     }
 
     pub fn set(&mut self, key: K, value: V) {
-        let idx = (key.hash(self.hash_key) % self.buckets.len() as u64) as usize;
+        let idx = (key.hash(self.hash_seed) % self.buckets.len() as u64) as usize;
         self.buckets[idx].set(key, value);
     }
 
@@ -66,7 +66,7 @@ impl<K: Clone + MapKeyHasher + PartialEq, V: Clone> CJHashMap<K, V> {
         if self.len() == 0 {
             None
         } else {
-            let idx = (key.hash(self.hash_key) % self.buckets.len() as u64) as usize;
+            let idx = (key.hash(self.hash_seed) % self.buckets.len() as u64) as usize;
             self.buckets[idx].get(key)
         }
     }

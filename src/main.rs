@@ -3,23 +3,24 @@ mod hashmap;
 use hashmap::CJHashMap;
 
 fn main() {
-    println!("<i32, i32> hashmap example");
-    let mut hashmap1: CJHashMap<i32, i32> = CJHashMap::new();
+    println!("CJHashMap<u32, String> hashmap example");
+    let mut hashmap: CJHashMap<u32, String> = CJHashMap::new();
 
-    let (key, value) = (97i32, 8i32);
-    hashmap1.add(key, value);
-    match hashmap1.get(key) {
-        None => println!("Element not found"),
-        Some(result) => println!("Key {} contains value {}", key, result),
-    }
-
-    println!("\n<u32, String> hashmap example");
-    let mut hashmap2: CJHashMap<u32, String> = CJHashMap::new();
-
+    // Adding elements
     let (key, value) = (48u32, String::from("Hello"));
-    hashmap2.add(key, value);
-    match hashmap2.get(key) {
+    println!("Adding value '{value}' for key {key}");
+    hashmap.set(key, value);
+    let (key, value) = (32u32, String::from("Good bye"));
+    println!("Adding value '{value}' for key {key}");
+    hashmap.set(key, value);
+
+    println!("Searching for value stored in key {key}");
+    // Retrieving element
+    match hashmap.get(key) {
         None => println!("Element not found"),
-        Some(result) => println!("Key {} contains value {}", key, result),
+        Some(result) => println!("Key {} contains value '{}'", key, result),
     }
+
+    // Getting the current number of elements on the map
+    println!("Hashmap has {} items", hashmap.len());
 }

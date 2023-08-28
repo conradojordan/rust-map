@@ -23,6 +23,7 @@ struct Bucket<K, V> {
 }
 
 pub struct CJHashMap<K, V> {
+    size: usize,
     hash_key: u128,
     buckets: Vec<Bucket<K, V>>,
 }
@@ -32,7 +33,7 @@ impl<K: PartialEq, V: Clone> Bucket<K, V> {
         Bucket { items: Vec::new() }
     }
 
-    fn add(&mut self, key: K, value: V) {
+    fn set(&mut self, key: K, value: V) {
         self.items.push((key, value));
     }
 
@@ -50,18 +51,27 @@ impl<K: Clone + MapKeyHasher + PartialEq, V: Clone> CJHashMap<K, V> {
     pub fn new() -> CJHashMap<K, V> {
         let mut rng = rand::thread_rng();
         CJHashMap {
+            size: 0,
             hash_key: rng.gen::<u128>(),
             buckets: vec![Bucket::<K, V>::new(); NUM_BUCKETS],
         }
     }
 
-    pub fn add(&mut self, key: K, value: V) {
+    pub fn set(&mut self, key: K, value: V) {
         let idx = (key.hash(self.hash_key) % self.buckets.len() as u64) as usize;
-        self.buckets[idx].add(key, value);
+        self.buckets[idx].set(key, value);
     }
 
     pub fn get(&self, key: K) -> Option<V> {
-        let idx = (key.hash(self.hash_key) % self.buckets.len() as u64) as usize;
-        self.buckets[idx].get(key)
+        if self.len() == 0 {
+            None
+        } else {
+            let idx = (key.hash(self.hash_key) % self.buckets.len() as u64) as usize;
+            self.buckets[idx].get(key)
+        }
+    }
+
+    pub fn len(&self) -> usize {
+        self.size
     }
 }

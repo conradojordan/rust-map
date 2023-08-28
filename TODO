@@ -1,5 +1,9 @@
-1. Add hashing implementation for String, so that it can be used as a key for the hash map
-2. Add hashing implementation for float types
-3. Make the number of buckets on the map grow dinamically
-4. Add "remove()" method that removes element from the map
-5. Add "items()" method that returns all the (key, value) tuples of the map
+- Add hashing implementation for String, so that it can be used as a key for the hash map
+- Add hashing implementation for float types
+- Make the number of buckets on the map grow dinamically
+- Add "remove()" method that removes element from the map
+- Add "items()" method that returns all the (key, value) tuples of the map
+- Add "len()" method that returns the number of items in the map
+- Add "return None" to "get()" if len() == 0
+- Change "hash_key" to "hash_seed"
+- Add number of buckets to map

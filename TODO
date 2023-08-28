@@ -1,6 +1,5 @@
 - Add hashing implementation for String, so that it can be used as a key for the hash map
 - Add hashing implementation for float types
 - Make the number of buckets on the map grow dinamically
-- Add "remove()" method that removes element from the map
 - Add "items()" method that returns all the (key, value) tuples of the map
 - Add number of buckets to map

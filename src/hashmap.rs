@@ -45,6 +45,24 @@ impl<K: PartialEq, V: Clone> Bucket<K, V> {
         }
         return None;
     }
+
+    fn remove(&mut self, key: K) -> Option<V> {
+        let mut found = None;
+        let mut idx: usize = 0;
+        for (i, item) in self.items.iter().enumerate() {
+            if item.0 == key {
+                idx = i;
+                found = Some(item.1.clone());
+                break;
+            }
+        }
+        if found.is_some() {
+            self.items.swap_remove(idx);
+            found
+        } else {
+            None
+        }
+    }
 }
 
 impl<K: Clone + MapKeyHasher + PartialEq, V: Clone> CJHashMap<K, V> {
@@ -57,18 +75,32 @@ impl<K: Clone + MapKeyHasher + PartialEq, V: Clone> CJHashMap<K, V> {
         }
     }
 
+    fn get_bucket_idx(&self, key: &K) -> usize {
+        (key.hash(self.hash_seed) % self.buckets.len() as u64) as usize
+    }
+
     pub fn set(&mut self, key: K, value: V) {
-        let idx = (key.hash(self.hash_seed) % self.buckets.len() as u64) as usize;
+        let idx = self.get_bucket_idx(&key);
         self.buckets[idx].set(key, value);
+        self.size += 1;
     }
 
     pub fn get(&self, key: K) -> Option<V> {
         if self.len() == 0 {
             None
         } else {
-            let idx = (key.hash(self.hash_seed) % self.buckets.len() as u64) as usize;
+            let idx = self.get_bucket_idx(&key);
             self.buckets[idx].get(key)
         }
+    }
+
+    pub fn remove(&mut self, key: K) -> Option<V> {
+        let idx = self.get_bucket_idx(&key);
+        let removed = self.buckets[idx].remove(key);
+        if removed.is_some() {
+            self.size -= 1;
+        }
+        removed
     }
 
     pub fn len(&self) -> usize {
